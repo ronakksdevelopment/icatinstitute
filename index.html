@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
   <style>
     /* ============================================================
@@ -169,7 +170,7 @@
     /* ============================================================
        SPA PAGE SYSTEM
        ============================================================ */
-    .page { display:none; min-height:calc(100vh - 80px); }
+    .page { display:none; min-height:calc(100vh - 80px); min-height:calc(100dvh - 80px); }
     .page.active { display:block; animation:page-in .4s ease both; }
     @keyframes page-in { from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);} }
 
@@ -216,10 +217,16 @@
     #navbar.scrolled .nav-links a:hover,
     #navbar.scrolled .nav-links a.active-link { color:var(--white); }
 
-    /* Hero page: the bg is dark image, so keep white text when on hero */
+    /* Hero page (or any dark-background page top): keep white text */
     #navbar.on-hero .nav-links a { color:rgba(255,255,255,0.88); }
     #navbar.on-hero .nav-links a:hover,
     #navbar.on-hero .nav-links a.active-link { color:var(--white); }
+
+    /* Dark-bg pages (e.g. Certifications) also need light nav text even when not scrolled */
+    #navbar.on-dark .nav-links a { color:rgba(255,255,255,0.88); }
+    #navbar.on-dark .nav-links a:hover,
+    #navbar.on-dark .nav-links a.active-link { color:var(--white); }
+    #navbar.on-dark #hamburger span { background:var(--white); }
 
     .nav-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
 
@@ -236,11 +243,12 @@
 
     /* Mobile Nav */
     #mobile-nav {
-      position:fixed; top:0; right:-100%; width:min(340px,100vw); height:100vh;
+      position:fixed; top:0; right:-100%; width:min(340px,100vw); height:100vh; height:100dvh;
       background:var(--navy-dark); z-index:999;
       display:flex; flex-direction:column; padding:90px 32px 40px;
       transition:right 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
       box-shadow:-10px 0 40px rgba(0,0,0,0.4); overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
     }
     #mobile-nav.open { right:0; }
     #mobile-nav a {
@@ -256,8 +264,9 @@
        HERO SECTION
        ============================================================ */
     #hero {
-      position:relative; min-height:100vh;
+      position:relative; min-height:100vh; min-height:100dvh;
       display:flex; align-items:center; overflow:hidden; background:var(--navy-dark);
+      padding-top:90px; padding-bottom:40px;
     }
     .hero-bg {
       position:absolute; inset:0; width:100%; height:100%;
@@ -406,6 +415,8 @@
     .cert-card h3 { font-size:0.95rem; font-weight:700; color:var(--white); margin-bottom:8px; }
     .cert-card p  { font-size:0.82rem; color:rgba(255,255,255,0.55); }
     .cert-badge { display:inline-block; background:rgba(255,215,0,0.15); color:var(--gold); border:1px solid rgba(255,215,0,0.3); padding:4px 12px; border-radius:99px; font-size:0.72rem; font-weight:700; margin-top:12px; }
+    .cert-card-action { cursor:pointer; }
+    .cert-card-action:focus-visible { outline:2px solid var(--crimson); outline-offset:3px; }
 
     /* ============================================================
        FRANCHISE SECTION
@@ -524,6 +535,11 @@
     .contact-form-card { background:white; border-radius:var(--radius-xl); padding:40px; box-shadow:var(--shadow-md); }
     .contact-form-card h3 { font-size:1.4rem; font-weight:700; color:var(--navy); margin-bottom:24px; }
     .map-placeholder { background:linear-gradient(135deg,var(--navy),var(--navy-light)); border-radius:var(--radius-lg); height:180px; display:flex; align-items:center; justify-content:center; color:white; margin-top:20px; font-size:0.9rem; gap:8px; text-align:center; }
+    .map-embed-wrap { position:relative; margin-top:20px; border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-md); border:1px solid rgba(11,31,106,0.08); background:var(--bg-gray); }
+    .map-embed-iframe { width:100%; height:260px; border:0; display:block; }
+    .map-embed-link { position:absolute; right:10px; bottom:10px; background:var(--white); color:var(--navy); font-size:0.78rem; font-weight:700; padding:8px 14px; border-radius:99px; text-decoration:none; box-shadow:var(--shadow-sm); display:inline-flex; align-items:center; gap:6px; transition:var(--transition); }
+    .map-embed-link:hover { background:var(--navy); color:var(--white); transform:translateY(-2px); }
+    @media (max-width:480px){ .map-embed-iframe { height:220px; } }
 
     /* ============================================================
        CTA BANNER
@@ -611,6 +627,8 @@
     .adm-nav-item i { width:18px; text-align:center; font-size:.9rem; }
     .adm-nav-item:hover { background:rgba(255,255,255,.07); color:#fff; }
     .adm-nav-item.active { background:var(--crimson); color:#fff; }
+    .adm-nav-badge { margin-left:auto; background:var(--crimson); color:#fff; font-size:.68rem; font-weight:700; padding:1px 7px; border-radius:99px; min-width:18px; text-align:center; }
+    .adm-nav-item.active .adm-nav-badge { background:rgba(255,255,255,.25); }
     .adm-user { margin-top:auto; padding:16px 20px; border-top:1px solid rgba(255,255,255,.08); display:flex; align-items:center; gap:10px; }
     .adm-user-avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--crimson),#d10d24); display:flex; align-items:center; justify-content:center; color:#fff; font-size:.85rem; font-weight:700; flex-shrink:0; }
     .adm-user-info .uname { font-size:.85rem; font-weight:600; color:#fff; }
@@ -690,11 +708,96 @@
     .prog-bar-fill { height:100%; border-radius:99px; }
 
     /* ============================================================
-       RESPONSIVE
+       CERTIFICATE GENERATOR MODAL
        ============================================================ */
+    #cert-gen-overlay {
+      position:fixed; inset:0; background:rgba(7,21,72,0.85); backdrop-filter:blur(12px);
+      z-index:99985; display:none; align-items:flex-start; justify-content:center;
+      overflow-y:auto; padding:40px 16px;
+    }
+    #cert-gen-overlay.show { display:flex; }
+    .cert-gen-modal-box {
+      background:#fff; border-radius:24px; width:100%; max-width:920px;
+      position:relative; box-shadow:0 40px 100px rgba(0,0,0,.4);
+      animation:pop-in .4s cubic-bezier(.34,1.56,.64,1) both; overflow:hidden;
+    }
+    .cert-gen-head {
+      background:linear-gradient(135deg,var(--navy),var(--navy-light));
+      color:#fff; padding:28px 36px; position:relative;
+    }
+    .cert-gen-head h2 { font-family:var(--font-display); font-size:1.5rem; margin-bottom:4px; }
+    .cert-gen-head p { font-size:.85rem; color:rgba(255,255,255,.7); }
+    .cert-gen-close { position:absolute; top:16px; right:16px; background:rgba(255,255,255,.15); border:none; width:34px; height:34px; border-radius:50%; cursor:pointer; font-size:.95rem; color:#fff; display:flex; align-items:center; justify-content:center; transition:var(--transition); }
+    .cert-gen-close:hover { background:var(--crimson); }
+    .cert-gen-body { padding:32px 36px 36px; max-height:70vh; overflow-y:auto; }
+    .cert-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; }
+    .cert-form-grid .full { grid-column:1/-1; }
+    .cert-form-grid label { font-size:.83rem; font-weight:600; color:var(--navy); margin-bottom:6px; display:block; }
+    .cert-form-grid input,.cert-form-grid select,.cert-form-grid textarea {
+      width:100%; padding:12px 16px; border:1.5px solid rgba(11,31,106,0.15); border-radius:var(--radius-md);
+      font-family:var(--font-main); font-size:0.9rem; color:var(--text-dark); background:var(--bg-gray);
+      transition:var(--transition); outline:none;
+    }
+    .cert-form-grid input:focus,.cert-form-grid select:focus,.cert-form-grid textarea:focus { border-color:var(--crimson); background:#fff; box-shadow:0 0 0 3px rgba(242,20,47,0.08); }
+    .cert-form-grid .hint { font-size:.74rem; color:var(--text-light); margin-top:4px; display:block; }
+    .cert-form-section-title { font-size:.8rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--crimson); margin:8px 0 2px; grid-column:1/-1; padding-top:14px; border-top:1px dashed rgba(11,31,106,.12); }
+    .cert-form-section-title:first-child { border-top:none; padding-top:0; margin-top:0; }
+
+    /* Photo upload widget */
+    .cert-photo-row { display:flex; gap:20px; align-items:flex-start; grid-column:1/-1; flex-wrap:wrap; }
+    .cert-photo-drop {
+      width:130px; height:155px; border-radius:var(--radius-md); border:2px dashed rgba(11,31,106,0.25);
+      background:var(--bg-gray); display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:6px; cursor:pointer; transition:var(--transition); flex-shrink:0; overflow:hidden; position:relative;
+      text-align:center; padding:8px;
+    }
+    .cert-photo-drop:hover { border-color:var(--crimson); background:rgba(242,20,47,0.04); }
+    .cert-photo-drop.has-img { border-style:solid; border-color:#10b981; padding:0; }
+    .cert-photo-drop img { width:100%; height:100%; object-fit:cover; }
+    .cert-photo-drop i { font-size:1.6rem; color:var(--text-light); }
+    .cert-photo-drop span { font-size:.72rem; color:var(--text-light); padding:0 6px; }
+    .cert-photo-meta { flex:1; min-width:180px; }
+    .cert-photo-meta p { font-size:.82rem; color:var(--text-mid); margin-bottom:6px; line-height:1.55; }
+    .cert-photo-status { font-size:.78rem; font-weight:600; display:flex; align-items:center; gap:6px; margin-top:8px; }
+    .cert-photo-status.ok { color:#10b981; }
+    .cert-photo-status.warn { color:#b8860b; }
+    .cert-photo-status.err { color:var(--crimson); }
+
+    .cert-gen-foot { padding:20px 36px 28px; border-top:1px solid var(--bg-gray); display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
+    .cert-gen-foot .fine { font-size:.75rem; color:var(--text-light); margin-right:auto; align-self:center; max-width:340px; }
+
+    /* Success step */
+    .cert-gen-success { text-align:center; padding:20px 10px 10px; }
+    .cert-gen-success .icon { font-size:3.2rem; color:#10b981; margin-bottom:14px; }
+    .cert-gen-success h3 { font-family:var(--font-display); color:var(--navy); font-size:1.4rem; margin-bottom:8px; }
+    .cert-gen-success p { color:var(--text-mid); font-size:.92rem; max-width:460px; margin:0 auto 20px; line-height:1.7; }
+    .cert-gen-success .ref-box { display:inline-block; background:var(--bg-gray); border:1.5px dashed rgba(11,31,106,.2); border-radius:var(--radius-md); padding:12px 24px; font-weight:700; color:var(--navy); letter-spacing:1px; margin-bottom:22px; }
+
+    /* Live A4-landscape certificate preview — canvas is a 1400x990 bitmap,
+       scaled down responsively so it always fits inside the modal body. */
+    #cert-preview-canvas-wrap { display:flex; justify-content:center; margin:0 0 22px; width:100%; }
+    #cert-preview-canvas { width:100%; max-width:820px; height:auto; aspect-ratio:1400/990; background:#fdfaf0; border:1px solid rgba(11,31,106,.12); border-radius:8px; box-shadow:var(--shadow-sm); display:block; }
+
+    @media (max-width:768px){
+      .cert-form-grid { grid-template-columns:1fr; }
+      .cert-gen-body { padding:24px 20px 28px; max-height:65vh; }
+      .cert-gen-head { padding:22px 24px; }
+      .cert-gen-foot { padding:18px 20px 22px; flex-direction:column-reverse; align-items:stretch; }
+      .cert-gen-foot .fine { margin-right:0; text-align:center; max-width:none; }
+      .cert-gen-foot .btn { width:100%; justify-content:center; }
+    }
+
+    /* ============================================================
+       RESPONSIVE — full device coverage (desktop → small phones)
+       ============================================================ */
+    @media (max-width:1180px){
+      .container { padding:0 20px; }
+    }
     @media (max-width:1024px){
-      .nav-links a { padding:6px 9px; font-size:.8rem; }
+      .nav-links a { padding:6px 8px; font-size:.78rem; }
       .adm-stat-grid { grid-template-columns:repeat(2,1fr); }
+      .grid-3 { grid-template-columns:repeat(2,1fr); }
+      .grid-4 { grid-template-columns:repeat(2,1fr); }
     }
     @media (max-width:900px){
       .hero-counters { grid-template-columns:repeat(2,1fr); }
@@ -709,43 +812,90 @@
       .testi-grid    { grid-template-columns:1fr; }
       .adm-sidebar   { width:220px; }
       .adm-grid3     { grid-template-columns:1fr 1fr; }
+      .grid-2        { grid-template-columns:1fr; gap:20px; }
+      .courses-grid  { grid-template-columns:repeat(2,1fr); }
+      .cert-cards    { grid-template-columns:repeat(2,1fr); }
     }
     @media (max-width:768px){
-      .section-pad { padding:64px 0; }
+      html { font-size:15px; }
+      .section-pad { padding:56px 0; }
+      .section-pad-sm { padding:44px 0; }
       .nav-links,.nav-right { display:none !important; }
       #hamburger { display:flex; margin-left:auto; }
-      .nav-logo img { height:40px; }
-      .hero-counters { grid-template-columns:repeat(2,1fr); }
-      .hero-btns { flex-direction:column; }
-      .hero-btns .btn { width:fit-content; }
+      .nav-logo img { height:38px; }
+      .hero-counters { grid-template-columns:repeat(2,1fr); gap:14px; }
+      .hero-btns { flex-direction:column; align-items:stretch; }
+      .hero-btns .btn { width:100%; justify-content:center; text-align:center; }
       .about-features { grid-template-columns:1fr; }
       .mv-cards { grid-template-columns:1fr; }
       .form-grid { grid-template-columns:1fr; }
-      .franchise-banner { padding:36px 24px; }
+      .franchise-banner { padding:32px 20px; }
       .footer-grid { grid-template-columns:1fr; gap:28px; }
-      .footer-bottom { flex-direction:column; text-align:center; }
+      .footer-bottom { flex-direction:column; text-align:center; gap:8px; }
       .gallery-grid  { grid-template-columns:repeat(2,1fr); }
       .gallery-item:nth-child(1) { grid-column:1/-1; }
       .adm-sidebar { width:200px; }
       .adm-grid2 { grid-template-columns:1fr; }
       .adm-stat-grid { grid-template-columns:repeat(2,1fr); }
       .adm-main { padding:16px; }
+      .courses-grid { grid-template-columns:1fr; }
+      .cert-cards    { grid-template-columns:1fr; }
+      .grid-3, .grid-4 { grid-template-columns:1fr; }
+      .timeline::before { left:20px; }
+      .container { padding:0 18px; }
+      .cert-gen-modal-box { width:95vw; max-height:92vh; }
+      .cert-form-grid { grid-template-columns:1fr; }
+      .floating-btns { right:16px; bottom:16px; gap:10px; }
+      .float-btn { width:46px; height:46px; font-size:1.1rem; }
+    }
+    @media (max-width:600px){
+      .welcome-box { padding:36px 22px; }
+      .contact-form-card { padding:26px 20px; }
+      .adm-header { flex-direction:column; align-items:flex-start; }
+      .adm-header-right { width:100%; }
+      .adm-header-right .btn { flex:1; justify-content:center; }
     }
     @media (max-width:480px){
-      .nav-inner { padding:0 12px; min-height:60px; }
-      .nav-logo img { height:36px; }
+      .nav-inner { padding:0 12px; min-height:58px; }
+      .nav-logo img { height:34px; }
       .container { padding:0 16px; }
-      .section-pad { padding:48px 0; }
-      .hero-counters { grid-template-columns:1fr 1fr; }
+      .section-pad { padding:44px 0; }
+      .section-pad-sm { padding:36px 0; }
+      .hero-counters { grid-template-columns:1fr 1fr; gap:10px; }
+      .counter-num { font-size:1.4rem; }
       .courses-grid  { grid-template-columns:1fr; }
       .cert-cards    { grid-template-columns:1fr; }
       .franchise-benefits { grid-template-columns:1fr; }
       .gallery-grid  { grid-template-columns:1fr; }
       .placement-stats { grid-template-columns:1fr 1fr; }
       .adm-stat-grid { grid-template-columns:1fr 1fr; }
-      .adm-sidebar { position:fixed; z-index:9999; height:100%; transform:translateX(-100%); transition:transform .3s; width:240px; }
+      .adm-sidebar { position:fixed; z-index:9999; height:100%; height:100dvh; transform:translateX(-100%); transition:transform .3s; width:240px; }
       .adm-sidebar.open { transform:translateX(0); }
+      .btn { padding:12px 24px; font-size:.88rem; }
+      .section-title { font-size:1.6rem; }
+      .welcome-strip { gap:6px; }
+      .wbadge { font-size:.7rem; padding:5px 10px; }
+      .cert-gen-modal-box { padding:20px 14px; }
+      .cert-photo-drop { width:110px; height:130px; }
     }
+    @media (max-width:360px){
+      .hero-counters { grid-template-columns:1fr 1fr; }
+      .counter-card { padding:12px 8px; }
+      .nav-logo img { height:30px; }
+      .btn { padding:11px 18px; font-size:.83rem; }
+    }
+    /* Landscape phones: hero shouldn't force full viewport height */
+    @media (max-height:480px) and (orientation:landscape){
+      #hero { min-height:auto; padding-top:100px; padding-bottom:40px; }
+      .page { min-height:auto; }
+    }
+    /* Respect reduced motion preference */
+    @media (prefers-reduced-motion: reduce){
+      *,*::before,*::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important; }
+    }
+    /* Ensure nothing causes horizontal scroll on any device */
+    html, body { max-width:100%; overflow-x:hidden; }
+    img { max-width:100%; height:auto; }
   </style>
 </head>
 <body>
@@ -1033,12 +1183,27 @@
         <p class="section-sub reveal" style="color:rgba(255,255,255,0.6);">ICAT certifications are recognized by employers, government bodies, and universities across India, giving your career a powerful edge.</p>
       </div>
       <div class="cert-cards">
+        <div class="cert-card reveal cert-card-action" onclick="openCertGen()" role="button" tabindex="0" onkeypress="if(event.key==='Enter')openCertGen()">
+          <div class="cert-icon" style="background:linear-gradient(135deg,#10b981,#059669);"><i class="fas fa-file-signature"></i></div>
+          <h3>Generate Certificate</h3>
+          <p>Fill up your details online and apply for your ICAT course completion certificate — submitted for admin approval instantly.</p>
+          <span class="cert-badge" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.3);">Apply Online</span>
+        </div>
         <div class="cert-card reveal"><div class="cert-icon"><i class="fas fa-star"></i></div><h3>ISO 9001:2015 Certified</h3><p>International quality management certification for our training programs and infrastructure.</p><span class="cert-badge">Quality Certified</span></div>
         <div class="cert-card reveal"><div class="cert-icon"><i class="fas fa-shield-alt"></i></div><h3>Government Recognized</h3><p>State and central government approved institute with valid certification authority.</p><span class="cert-badge">Govt. Approved</span></div>
         <div class="cert-card reveal"><div class="cert-icon"><i class="fas fa-university"></i></div><h3>University Affiliated</h3><p>Tie-ups with leading Indian universities for diploma and certificate validation and credit transfer.</p><span class="cert-badge">University Linked</span></div>
         <div class="cert-card reveal"><div class="cert-icon"><i class="fas fa-qrcode"></i></div><h3>QR Verifiable Certificates</h3><p>Every ICAT certificate is digitally signed and QR-coded for instant online verification by employers.</p><span class="cert-badge">Digital Verified</span></div>
         <div class="cert-card reveal"><div class="cert-icon"><i class="fas fa-globe-asia"></i></div><h3>NSDC Partner</h3><p>National Skill Development Corporation aligned programs for certified skill-based training.</p><span class="cert-badge">NSDC Aligned</span></div>
         <div class="cert-card reveal"><div class="cert-icon"><i class="fas fa-medal"></i></div><h3>Industry Partnerships</h3><p>Collaboration with leading IT companies for curriculum design and placement partnerships.</p><span class="cert-badge">Industry Backed</span></div>
+        <div class="cert-card reveal cert-card-action" onclick="showToast('🔍 Enter your Certificate No. on the verification portal to check status.','info')" role="button" tabindex="0">
+          <div class="cert-icon" style="background:linear-gradient(135deg,var(--navy),var(--navy-light));"><i class="fas fa-search"></i></div>
+          <h3>Verify a Certificate</h3>
+          <p>Already have an ICAT certificate? Verify its authenticity instantly using the Certificate No. printed on it.</p>
+          <span class="cert-badge" style="background:rgba(11,31,106,0.15);color:#93a3e0;border-color:rgba(11,31,106,0.4);">Instant Check</span>
+        </div>
+      </div>
+      <div class="text-center reveal" style="margin-top:36px;">
+        <button class="btn btn-primary" onclick="openCertGen()"><i class="fas fa-file-signature"></i> Apply for Your Certificate</button>
       </div>
     </div>
   </section>
@@ -1211,7 +1376,7 @@
       <div class="contact-grid">
         <div class="reveal-left">
           <div class="contact-info-items">
-            <div class="ci-item"><div class="ci-icon"><i class="fas fa-map-marker-alt"></i></div><div class="ci-text"><h4>Head Office</h4><p>ICAT Institute HQ, 4th Floor, Tech Tower,<br />New Delhi – 110001, India</p></div></div>
+            <div class="ci-item"><div class="ci-icon"><i class="fas fa-map-marker-alt"></i></div><div class="ci-text"><h4>Head Office</h4><p>ICAT Institute HQ, Near A.A Road,<br />Kumarghat, Unakoti, Tripura – 799264, India</p></div></div>
             <div class="ci-item"><div class="ci-icon"><i class="fas fa-phone-alt"></i></div><div class="ci-text"><h4>Helpline Numbers</h4><a href="tel:+911234567890">+91 12345 67890</a><br /><a href="tel:+911234567891">+91 12345 67891</a></div></div>
             <div class="ci-item"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div class="ci-text"><h4>Email</h4><a href="mailto:info@icatinstitute.in">info@icatinstitute.in</a><br /><a href="mailto:franchise@icatinstitute.in">franchise@icatinstitute.in</a></div></div>
             <div class="ci-item"><div class="ci-icon"><i class="fas fa-clock"></i></div><div class="ci-text"><h4>Working Hours</h4><p>Monday – Saturday: 9:00 AM – 6:00 PM<br />Sunday: 10:00 AM – 2:00 PM</p></div></div>
@@ -1227,7 +1392,19 @@
               <a href="https://wa.me/911234567890" class="soc-btn soc-wa"><i class="fab fa-whatsapp"></i></a>
             </div>
           </div>
-          <div class="map-placeholder"><i class="fas fa-map-marked-alt" style="font-size:2rem;"></i><span>Map · New Delhi, India<br /><small style="opacity:0.6;">Interactive map at icatinstitute.in</small></span></div>
+          <div class="map-embed-wrap">
+            <iframe
+              class="map-embed-iframe"
+              src="https://maps.google.com/maps?q=Kumarghat%2C%20Unakoti%2C%20Tripura%2C%20799264&t=&z=14&ie=UTF8&iwloc=&output=embed"
+              title="ICAT Institute Head Office Location Map"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen>
+            </iframe>
+            <a class="map-embed-link" href="https://www.google.com/maps/search/?api=1&query=Kumarghat+Unakoti+Tripura+799264" target="_blank" rel="noopener">
+              <i class="fas fa-external-link-alt"></i> Open in Google Maps
+            </a>
+          </div>
         </div>
         <div class="contact-form-card reveal-right">
           <h3>📩 Send Us a Message</h3>
@@ -1295,7 +1472,7 @@
         <div class="footer-col">
           <h4>Contact &amp; Newsletter</h4>
           <div class="footer-contact-items">
-            <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>4th Floor, Tech Tower, New Delhi – 110001</span></div>
+            <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>Near A.A Road, Kumarghat, Unakoti, Tripura – 799264</span></div>
             <div class="footer-contact-item"><i class="fas fa-phone-alt"></i><a href="tel:+911234567890" style="color:rgba(255,255,255,0.75);text-decoration:none;">+91 12345 67890</a></div>
             <div class="footer-contact-item"><i class="fas fa-envelope"></i><a href="mailto:info@icatinstitute.in" style="color:rgba(255,255,255,0.75);text-decoration:none;">info@icatinstitute.in</a></div>
           </div>
@@ -1325,6 +1502,120 @@
   <!-- Admin Panel floating button -->
   <button class="float-btn float-admin" onclick="openAdmin()" title="Admin Panel"><i class="fas fa-shield-alt"></i></button>
   <button class="float-btn float-top" id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to Top"><i class="fas fa-chevron-up"></i></button>
+</div>
+
+<!-- ============================================================
+     CERTIFICATE GENERATOR MODAL
+     ============================================================ -->
+<div id="cert-gen-overlay">
+  <div class="cert-gen-modal-box">
+    <div class="cert-gen-head">
+      <button class="cert-gen-close" onclick="closeCertGen()"><i class="fas fa-times"></i></button>
+      <h2><i class="fas fa-file-signature"></i> Certificate Application Form</h2>
+      <p>Fill up your details exactly as they should appear on your certificate. Your application goes to admin for approval before the certificate is issued.</p>
+    </div>
+
+    <!-- STEP 1: FORM -->
+    <div id="cert-gen-step-form">
+      <div class="cert-gen-body">
+        <div class="cert-form-grid">
+
+          <div class="cert-form-section-title"><i class="fas fa-image"></i> Passport Photo</div>
+          <div class="cert-photo-row">
+            <label class="cert-photo-drop" id="cert-photo-drop" for="cert-photo-input">
+              <i class="fas fa-camera" id="cert-photo-icon"></i>
+              <span id="cert-photo-label">Click to upload photo</span>
+            </label>
+            <input type="file" id="cert-photo-input" accept="image/*" style="display:none;" onchange="handleCertPhoto(event)" />
+            <div class="cert-photo-meta">
+              <p>Upload a clear passport-size photo (face visible, plain background). The photo is <strong>auto-cropped to passport ratio</strong> and <strong>compressed to under 100KB</strong> automatically before upload.</p>
+              <div class="cert-photo-status" id="cert-photo-status"><i class="fas fa-info-circle"></i> No photo selected yet</div>
+            </div>
+          </div>
+
+          <div class="cert-form-section-title"><i class="fas fa-user"></i> Candidate Details</div>
+          <div><label>Title *</label>
+            <select id="cg-title"><option>Mr.</option><option>Miss</option><option>Mrs.</option></select>
+          </div>
+          <div><label>Full Name (as on ID) *</label><input type="text" id="cg-name" placeholder="e.g. Ankita Debnath" /></div>
+          <div><label>Relation *</label>
+            <select id="cg-relation"><option>Son of</option><option>Daughter of</option><option>Wife of</option></select>
+          </div>
+          <div><label>Father's / Husband's Name *</label><input type="text" id="cg-guardian" placeholder="e.g. Goutam Debnath" /></div>
+          <div><label>Date of Birth</label><input type="date" id="cg-dob" /></div>
+          <div><label>Mobile Number *</label><input type="tel" id="cg-phone" placeholder="+91 XXXXX XXXXX" /></div>
+          <div class="full"><label>Email Address</label><input type="email" id="cg-email" placeholder="your@email.com" /></div>
+
+          <div class="cert-form-section-title"><i class="fas fa-graduation-cap"></i> Course Details</div>
+          <div><label>Course *</label>
+            <select id="cg-course" onchange="onCertCourseChange()">
+              <option value="">Select course</option>
+              <option value="CCC">CCC — Course on Computer Concepts</option>
+              <option value="Computer Fundamentals">Computer Fundamentals</option>
+              <option value="DCA">DCA — Diploma in Computer Applications</option>
+              <option value="ADCA">ADCA — Advance Diploma in Computer Application</option>
+              <option value="Tally Prime with GST">Tally Prime with GST</option>
+              <option value="Graphic Design">Graphic Design</option>
+              <option value="Web Development">Web Development</option>
+              <option value="Digital Marketing">Digital Marketing</option>
+              <option value="Data Entry Operator">Data Entry Operator</option>
+              <option value="Spoken English">Spoken English</option>
+            </select>
+          </div>
+          <div><label>Training Centre *</label><input type="text" id="cg-centre" placeholder="e.g. Kumarghat, Unakoti Tripura" value="Kumarghat, Unakoti Tripura" /></div>
+          <div><label>Course Duration *</label><input type="text" id="cg-duration" placeholder="e.g. 12 Months" /></div>
+          <div><label>Grade Obtained *</label>
+            <select id="cg-grade"><option>A+</option><option>A</option><option selected>B+</option><option>B</option><option>C+</option><option>C</option></select>
+            <span class="hint">A+: &gt;90% · A: 80–90% · B+: 60–80% · B: 50–60% · C+: 50–40% · C: 30–40%</span>
+          </div>
+          <div><label>Course Start Date</label><input type="date" id="cg-start" /></div>
+          <div class="full"><label>Subjects / Modules Covered *</label><textarea id="cg-subjects" placeholder="e.g. Computer Fundamentals, Ms-Windows, Ms-Office, DTP, Corel Draw, Tally, HTML, C, Multimedia Concept & Internet."></textarea></div>
+
+          <div class="cert-form-section-title"><i class="fas fa-id-card"></i> Additional / ICAT-style Form-Fillup Fields</div>
+          <div><label>Guardian's Occupation</label><input type="text" id="cg-occupation" placeholder="Optional" /></div>
+          <div><label>Aadhaar / ID Number (optional)</label><input type="text" id="cg-idno" placeholder="For office record only" /></div>
+          <div class="full"><label>Residential Address</label><textarea id="cg-address" placeholder="Village/Town, P.O., District, State, PIN"></textarea></div>
+
+        </div>
+      </div>
+      <div class="cert-gen-foot">
+        <span class="fine">By submitting, you confirm the details above are accurate. Your certificate will be generated as a preview and issued only after admin approval.</span>
+        <button class="btn" style="background:var(--bg-gray);color:var(--text-mid);" onclick="closeCertGen()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitCertForm()"><i class="fas fa-paper-plane"></i> Preview &amp; Submit</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: PREVIEW + PDF -->
+    <div id="cert-gen-step-preview" style="display:none;">
+      <div class="cert-gen-body">
+        <div id="cert-preview-canvas-wrap">
+          <canvas id="cert-preview-canvas" width="1400" height="990"></canvas>
+        </div>
+        <p style="text-align:center;font-size:.85rem;color:var(--text-mid);max-width:520px;margin:0 auto;">This is a preview of your certificate exactly as it will be printed (A4 landscape). Download a PDF copy for your records, or go back to edit any field before submitting for approval.</p>
+      </div>
+      <div class="cert-gen-foot">
+        <span class="fine">Status after submission: <strong style="color:#b8860b;">Pending Admin Approval</strong>. You'll be notified once approved.</span>
+        <button class="btn" style="background:var(--bg-gray);color:var(--text-mid);" onclick="backToCertForm()"><i class="fas fa-arrow-left"></i> Edit Details</button>
+        <button id="cert-view-editdate-btn" class="btn" style="display:none;background:var(--bg-gray);color:var(--text-mid);" onclick="editCertApprovedDate(window.__certViewIndex)"><i class="fas fa-calendar-alt"></i> Edit Issue Date</button>
+        <button class="btn btn-navy" onclick="downloadCertPdf()"><i class="fas fa-file-pdf"></i> Download PDF Preview</button>
+        <button class="btn btn-primary" onclick="finalSubmitCert()"><i class="fas fa-check-circle"></i> Submit for Approval</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: SUCCESS -->
+    <div id="cert-gen-step-success" style="display:none;">
+      <div class="cert-gen-body">
+        <div class="cert-gen-success">
+          <div class="icon"><i class="fas fa-check-circle"></i></div>
+          <h3>Application Submitted!</h3>
+          <p>Your certificate application has been sent to ICAT admin for review. Once approved, your final certificate (with issue date) will be available for download and your reference number can be used for verification.</p>
+          <div class="ref-box" id="cert-ref-box">REF: ICAT000000</div>
+          <div><button class="btn btn-primary" onclick="closeCertGen()"><i class="fas fa-check"></i> Done</button></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <!-- ============================================================
@@ -1383,6 +1674,7 @@
     <div class="adm-nav-section">
       <div class="adm-nav-label">Management</div>
       <div class="adm-nav-item" onclick="admTab('enquiries',this)"><i class="fas fa-envelope"></i> Enquiries</div>
+      <div class="adm-nav-item" onclick="admTab('cert_requests',this)"><i class="fas fa-file-signature"></i> Certificate Requests <span class="adm-nav-badge" id="cert-queue-count">0</span></div>
       <div class="adm-nav-item" onclick="admTab('students',this)"><i class="fas fa-users"></i> Students</div>
       <div class="adm-nav-item" onclick="admTab('placements_edit',this)"><i class="fas fa-briefcase"></i> Placements</div>
       <div class="adm-nav-item" onclick="admTab('franchise_leads',this)"><i class="fas fa-handshake"></i> Franchise Leads</div>
@@ -1621,7 +1913,7 @@ Franchise Enquiries Open Across India — Be Your Own Boss
       <div class="adm-card">
         <h3><i class="fas fa-phone"></i> Contact Information</h3>
         <div class="adm-grid2">
-          <div class="edit-field"><label>Head Office Address</label><textarea>ICAT Institute HQ, 4th Floor, Tech Tower, New Delhi – 110001, India</textarea></div>
+          <div class="edit-field"><label>Head Office Address</label><textarea>ICAT Institute HQ, Near A.A Road, Kumarghat, Unakoti, Tripura – 799264, India</textarea></div>
           <div class="edit-field"><label>Working Hours</label><textarea>Monday – Saturday: 9:00 AM – 6:00 PM
 Sunday: 10:00 AM – 2:00 PM</textarea></div>
           <div class="edit-field"><label>Primary Phone</label><input type="tel" value="+91 12345 67890" /></div>
@@ -1629,7 +1921,7 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
           <div class="edit-field"><label>General Email</label><input type="email" value="info@icatinstitute.in" /></div>
           <div class="edit-field"><label>Franchise Email</label><input type="email" value="franchise@icatinstitute.in" /></div>
           <div class="edit-field"><label>WhatsApp Number</label><input type="tel" value="911234567890" /></div>
-          <div class="edit-field"><label>Google Maps Embed URL</label><input type="url" placeholder="https://maps.google.com/embed?..." /></div>
+          <div class="edit-field full" style="grid-column:1/-1;"><label>Google Maps Embed URL</label><input type="url" value="https://maps.google.com/maps?q=Kumarghat%2C%20Unakoti%2C%20Tripura%2C%20799264&t=&z=14&ie=UTF8&iwloc=&output=embed" /></div>
         </div>
         <div class="save-row"><button class="btn-save" onclick="saveSection('Contact Info')"><i class="fas fa-save"></i> Save Contact Info</button></div>
       </div>
@@ -1652,6 +1944,19 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
             <tr><td>3</td><td>Anita Devi</td><td>76543 21098</td><td>Contact</td><td>Need fee details for Tally...</td><td><span class="status-pill s-active">Contacted</span></td><td><button class="btn btn-navy btn-sm" style="padding:4px 10px;font-size:.72rem;" onclick="showToast('Closed','success')">Close</button></td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: CERTIFICATE REQUESTS ── -->
+    <div class="adm-tab" id="tab-cert_requests">
+      <div class="adm-card">
+        <h3><i class="fas fa-file-signature"></i> Certificate Applications — Pending Approval</h3>
+        <p style="font-size:.85rem;color:var(--text-mid);margin-bottom:16px;">Applications submitted from the "Generate Certificate" form on the website appear here in real time (demo queue). Approve to mark a certificate issued, or reject to send it back. Once approved, the issue date can still be edited.</p>
+        <table class="adm-table">
+          <thead><tr><th>Ref No.</th><th>Applicant</th><th>Course</th><th>Centre</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="cert-queue-tbody"></tbody>
+        </table>
+        <p id="cert-queue-empty" style="text-align:center;padding:30px 10px;color:var(--text-light);font-size:.88rem;">No certificate applications yet. Submissions from the website's "Generate Certificate" form will appear here — this is a live, working demo queue for this session.</p>
       </div>
     </div>
 
@@ -1846,16 +2151,29 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
   const progBar = document.getElementById('progress-bar');
   const footer  = document.getElementById('footer');
 
+  // Pages whose very first section has a dark (navy) background —
+  // nav text needs to stay light on these even before scrolling.
+  const DARK_TOP_PAGES = ['home', 'certifications'];
+  const ALL_PAGES = ['home','about','courses','certifications','franchise','placements','gallery','testimonials','faq','contact'];
+
   function updateNavbarStyle() {
     const st = document.documentElement.scrollTop;
     const sh = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    progBar.style.width = (st / sh * 100) + '%';
+    progBar.style.width = (sh > 0 ? (st / sh * 100) : 0) + '%';
     navbar.classList.toggle('scrolled', st > 60);
     if (backTop) backTop.classList.toggle('show', st > 400);
 
-    // Only apply white text treatment when on the home/hero page
+    // White text treatment while at the top of the home/hero page
     const homePageActive = document.getElementById('page-home').classList.contains('active');
     navbar.classList.toggle('on-hero', homePageActive && st <= 60);
+
+    // White text treatment while at the top of any other dark-background page
+    const activePage = ALL_PAGES.find(p => {
+      const el = document.getElementById('page-' + p);
+      return el && el.classList.contains('active');
+    });
+    const onDarkPage = activePage && activePage !== 'home' && DARK_TOP_PAGES.includes(activePage);
+    navbar.classList.toggle('on-dark', !!onDarkPage && st <= 60);
   }
 
   window.addEventListener('scroll', updateNavbarStyle, { passive: true });
@@ -1886,8 +2204,6 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
   /* ============================
      SPA NAVIGATION
      ============================ */
-  const ALL_PAGES = ['home','about','courses','certifications','franchise','placements','gallery','testimonials','faq','contact'];
-
   function navigate(page) {
     ALL_PAGES.forEach(p => {
       const el = document.getElementById('page-' + p);
@@ -1909,6 +2225,10 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
 
   /* ============================
      REVEAL ANIMATIONS
+     Hardened so content never gets stuck invisible: elements already
+     in the viewport are shown immediately, and a safety-net timeout
+     force-reveals anything the observer missed (fast nav, resize,
+     zero-height containers on first paint, etc).
      ============================ */
   let revealObs;
   function initReveal() {
@@ -1920,10 +2240,19 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
           revealObs.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.12 });
+    }, { threshold: 0.01, rootMargin: '0px 0px -5% 0px' });
     document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
       if (!el.classList.contains('visible')) revealObs.observe(el);
     });
+    // Safety net: force-reveal anything still hidden after 1.2s
+    // (covers edge cases where the observer never fires — e.g. an
+    // element with zero layout height at the moment it was observed).
+    clearTimeout(window.__revealSafety);
+    window.__revealSafety = setTimeout(() => {
+      document.querySelectorAll('.reveal:not(.visible), .reveal-left:not(.visible), .reveal-right:not(.visible)').forEach(el => {
+        el.classList.add('visible');
+      });
+    }, 1200);
   }
   initReveal();
 
@@ -2048,7 +2377,8 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
     document.body.style.overflow = '';
   }
   document.getElementById('lightbox').addEventListener('click', function (e) { if (e.target === this) closeLightbox(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeLightbox(); closeAdmin(); closeAdmPanel(); } });
+  document.getElementById('cert-gen-overlay').addEventListener('click', function (e) { if (e.target === this) closeCertGen(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeLightbox(); closeAdmin(); closeAdmPanel(); closeCertGen(); } });
 
   /* ============================
      FORM SUBMISSIONS
@@ -2075,6 +2405,408 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
     if (!input.value || !input.value.includes('@')) { showToast("⚠️ Please enter a valid email address.", 'error'); return; }
     showToast("✅ Subscribed! You'll receive updates from ICAT.", 'success');
     input.value = '';
+  }
+
+  /* ============================================================
+     CERTIFICATE GENERATOR
+     - Photo upload: client-side crop to passport ratio (3:4) +
+       iterative JPEG compression until under 100KB.
+     - Live canvas preview matching the real ICAT certificate layout.
+     - PDF export via jsPDF, landscape A4.
+     - Submission pushes into a local "pending approval" queue that
+       the Admin Panel's "Certificate Requests" tab reads from — a
+       working demo of the approval workflow (no backend attached).
+     ============================================================ */
+  const CERT_PHOTO_MAX_BYTES = 100 * 1024; // 100KB limit
+  let certPhotoDataUrl = null; // compressed JPEG data URL, ready to embed
+  let certPhotoSizeKB  = 0;
+  let certQueue = []; // in-memory demo queue of submissions pending admin approval
+  let certLastPreview = null; // { fields, photo } for the currently previewed application
+
+  function openCertGen() {
+    document.getElementById('cert-gen-overlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('cert-gen-step-form').style.display = '';
+    const submitBtn = document.querySelector('#cert-gen-step-preview .cert-gen-foot .btn-primary');
+    if (submitBtn) submitBtn.style.display = '';
+    const statusLine = document.querySelector('#cert-gen-step-preview .cert-gen-foot .fine');
+    if (statusLine) statusLine.innerHTML = 'Status after submission: <strong style="color:#b8860b;">Pending Admin Approval</strong>. You\'ll be notified once approved.';
+    const editDateBtn = document.getElementById('cert-view-editdate-btn');
+    if (editDateBtn) editDateBtn.style.display = 'none';
+    window.__certViewIndex = null;
+    showCertStep('form');
+  }
+  function closeCertGen() {
+    document.getElementById('cert-gen-overlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  function showCertStep(step) {
+    document.getElementById('cert-gen-step-form').style.display    = step === 'form'    ? '' : 'none';
+    document.getElementById('cert-gen-step-preview').style.display = step === 'preview' ? '' : 'none';
+    document.getElementById('cert-gen-step-success').style.display = step === 'success' ? '' : 'none';
+  }
+  function backToCertForm() { showCertStep('form'); }
+
+  function onCertCourseChange() {
+    const durations = { 'CCC':'3 Months', 'Computer Fundamentals':'1–2 Months', 'DCA':'6 Months', 'ADCA':'12 Months', 'Tally Prime with GST':'3 Months', 'Graphic Design':'3–6 Months', 'Web Development':'6–12 Months', 'Digital Marketing':'3–6 Months', 'Data Entry Operator':'2–3 Months', 'Spoken English':'3 Months' };
+    const subjects  = {
+      'ADCA':'Computer Fundamentals, Ms-Windows, Ms-Office, DTP, Corel Draw, Tally, HTML, C, Multimedia Concept & Internet.',
+      'DCA':'Computer Fundamentals, Ms-Windows, Ms-Office, Internet Applications, Basic Accounting.',
+      'CCC':'Computer Basics, Operating System, Internet, Digital Literacy Essentials.',
+      'Tally Prime with GST':'Tally Prime, GST Filing, Inventory Management, Payroll, Financial Reports.',
+      'Graphic Design':'Photoshop, Illustrator, CorelDRAW, Canva.',
+      'Web Development':'HTML, CSS, JavaScript, PHP, MySQL.',
+      'Digital Marketing':'SEO, SEM, Social Media Marketing, Content Creation, Email Marketing, Google Analytics.',
+      'Data Entry Operator':'Typing Speed, MS Excel, Database Management.',
+      'Spoken English':'Grammar, Pronunciation, Conversation, Interview Preparation.',
+      'Computer Fundamentals':'Computer Basics, Operating Systems, Internet, Essential Software.'
+    };
+    const course = document.getElementById('cg-course').value;
+    if (durations[course]) document.getElementById('cg-duration').value = durations[course];
+    if (subjects[course])  document.getElementById('cg-subjects').value = subjects[course];
+  }
+
+  /* ---- Photo upload: auto-crop to passport ratio + compress under 100KB ---- */
+  function handleCertPhoto(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const statusEl = document.getElementById('cert-photo-status');
+    statusEl.className = 'cert-photo-status'; statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing photo…';
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        // Passport-photo aspect ratio ~ 3:4 (w:h)
+        const targetRatio = 3 / 4;
+        let sx = 0, sy = 0, sw = img.width, sh = img.height;
+        const currentRatio = sw / sh;
+        if (currentRatio > targetRatio) {
+          // too wide — crop sides
+          sw = sh * targetRatio;
+          sx = (img.width - sw) / 2;
+        } else if (currentRatio < targetRatio) {
+          // too tall — crop top/bottom
+          sh = sw / targetRatio;
+          sy = (img.height - sh) / 2;
+        }
+        const outW = 300, outH = 400;
+        const canvas = document.createElement('canvas');
+        canvas.width = outW; canvas.height = outH;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
+
+        // Iteratively compress JPEG quality until under the size limit
+        let quality = 0.9;
+        let dataUrl = canvas.toDataURL('image/jpeg', quality);
+        function sizeOf(du) { return Math.round((du.length * 3) / 4 / 1024); } // approx KB from base64 length
+        let guard = 0;
+        while (sizeOf(dataUrl) > CERT_PHOTO_MAX_BYTES / 1024 && quality > 0.1 && guard < 20) {
+          quality -= 0.08;
+          dataUrl = canvas.toDataURL('image/jpeg', quality);
+          guard++;
+        }
+        const finalKB = sizeOf(dataUrl);
+        certPhotoDataUrl = dataUrl;
+        certPhotoSizeKB  = finalKB;
+
+        const drop = document.getElementById('cert-photo-drop');
+        drop.classList.add('has-img');
+        drop.innerHTML = `<img src="${dataUrl}" alt="Uploaded photo preview" />`;
+
+        if (finalKB <= 100) {
+          statusEl.className = 'cert-photo-status ok';
+          statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Photo ready · auto-cropped &amp; compressed to ~${finalKB}KB`;
+        } else {
+          statusEl.className = 'cert-photo-status warn';
+          statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Compressed to ~${finalKB}KB (still above 100KB — try a simpler photo)`;
+        }
+      };
+      img.onerror = () => {
+        statusEl.className = 'cert-photo-status err';
+        statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Could not read that image. Please try another file.';
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ---- Gather form fields ---- */
+  function collectCertFields() {
+    const val = id => (document.getElementById(id) ? document.getElementById(id).value.trim() : '');
+    return {
+      title: val('cg-title'), name: val('cg-name'), relation: val('cg-relation'),
+      guardian: val('cg-guardian'), dob: val('cg-dob'), phone: val('cg-phone'), email: val('cg-email'),
+      course: val('cg-course'), centre: val('cg-centre'), duration: val('cg-duration'),
+      grade: val('cg-grade'), start: val('cg-start'), subjects: val('cg-subjects'),
+      occupation: val('cg-occupation'), idno: val('cg-idno'), address: val('cg-address')
+    };
+  }
+
+  function submitCertForm() {
+    const f = collectCertFields();
+    const required = { name:'Full Name', guardian:"Father's/Husband's Name", phone:'Mobile Number', course:'Course', centre:'Training Centre', duration:'Course Duration', subjects:'Subjects / Modules' };
+    for (const key in required) {
+      if (!f[key]) { showToast(`⚠️ Please fill "${required[key]}" before continuing.`, 'error'); return; }
+    }
+    if (!certPhotoDataUrl) { showToast('⚠️ Please upload your passport photo.', 'error'); return; }
+
+    certLastPreview = { fields: f, photo: certPhotoDataUrl };
+    drawCertPreview(f, certPhotoDataUrl, null);
+    showCertStep('preview');
+  }
+
+  /* ---- Canvas rendering of the certificate (landscape, matches ICAT layout) ---- */
+  function drawCertPreview(f, photoDataUrl, certNo) {
+    const canvas = document.getElementById('cert-preview-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Background
+    ctx.fillStyle = '#fdfaf0'; ctx.fillRect(0, 0, W, H);
+    // Border
+    ctx.strokeStyle = '#0B1F6A'; ctx.lineWidth = 10; ctx.strokeRect(20, 20, W - 40, H - 40);
+    ctx.strokeStyle = '#F2142F'; ctx.lineWidth = 3;  ctx.strokeRect(36, 36, W - 72, H - 72);
+
+    // Header
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#0B1F6A';
+    ctx.font = 'bold 46px Georgia, serif';
+    ctx.fillText('ICAT Institute', W / 2, 110);
+    ctx.font = '20px Georgia, serif';
+    ctx.fillStyle = '#4a4a6a';
+    ctx.fillText('Institute For Computer Assessment & Training', W / 2, 142);
+    ctx.font = 'bold 13px Poppins, sans-serif';
+    ctx.fillStyle = '#F2142F';
+    ctx.fillText('AN ISO 9001:2015 CERTIFIED INSTITUTE  ·  GOVT. RECOGNIZED', W / 2, 166);
+
+    // Certificate No
+    ctx.textAlign = 'left';
+    ctx.font = '16px Poppins, sans-serif';
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillText('Certificate No.', 70, 205);
+    ctx.font = 'bold 16px Poppins, sans-serif';
+    ctx.fillText(certNo || 'ICAT—PENDING—APPROVAL', 210, 205);
+
+    // Photo box (top right)
+    const pw = 130, ph = 165, px = W - 70 - pw, py = 195;
+    ctx.strokeStyle = '#0B1F6A'; ctx.lineWidth = 2; ctx.strokeRect(px, py, pw, ph);
+    if (photoDataUrl) {
+      const img = new Image();
+      img.onload = () => { ctx.drawImage(img, px, py, pw, ph); };
+      img.src = photoDataUrl;
+    }
+
+    // Script "This credential is awarded to"
+    ctx.textAlign = 'center';
+    ctx.font = 'italic 22px Georgia, serif';
+    ctx.fillStyle = '#4a4a6a';
+    ctx.fillText('This credential is awarded to', W / 2 - 70, 260);
+
+    // Name
+    ctx.font = 'bold 34px Georgia, serif';
+    ctx.fillStyle = '#0B1F6A';
+    const displayName = `${f.title} ${f.name}`.trim();
+    ctx.fillText(displayName, W / 2 - 70, 310);
+    ctx.strokeStyle = '#0B1F6A'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(W / 2 - 70 - 260, 322); ctx.lineTo(W / 2 - 70 + 260, 322); ctx.stroke();
+
+    // Guardian
+    ctx.font = '18px Georgia, serif'; ctx.fillStyle = '#4a4a6a';
+    ctx.fillText(`${f.relation} ${f.guardian}`, W / 2 - 70, 355);
+
+    // Course line
+    ctx.font = 'italic 18px Georgia, serif';
+    ctx.fillText('for successfully completing the course', W / 2 - 70, 392);
+    ctx.font = 'bold 24px Georgia, serif'; ctx.fillStyle = '#F2142F';
+    ctx.fillText(f.course, W / 2 - 70, 425);
+
+    // Centre / grade / duration row
+    ctx.font = '17px Georgia, serif'; ctx.fillStyle = '#1a1a2e';
+    ctx.fillText(`from our ${f.centre} centre`, W / 2 - 70, 460);
+    ctx.fillText(`with ${f.grade} grade  ·  duration ${f.duration}`, W / 2 - 70, 490);
+
+    // Subjects
+    ctx.font = '14px Poppins, sans-serif'; ctx.fillStyle = '#4a4a6a';
+    wrapText(ctx, f.subjects, W / 2 - 70, 525, 620, 20);
+
+    // Footer: date + seal + signature
+    ctx.textAlign = 'left';
+    ctx.font = '14px Poppins, sans-serif'; ctx.fillStyle = '#1a1a2e';
+    const issueDate = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'2-digit', year:'numeric' });
+    ctx.fillText(`Date of Issue: ${certNo ? issueDate : '(assigned on approval)'}`, 70, H - 90);
+    ctx.fillText('Grade Scale: A+ >90% · A 80–90% · B+ 60–80% · B 50–60% · C+ 40–50% · C 30–40%', 70, H - 65);
+
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 14px Georgia, serif';
+    ctx.fillText('Signature of Director', W - 220, H - 70);
+    ctx.beginPath(); ctx.moveTo(W - 320, H - 90); ctx.lineTo(W - 120, H - 90); ctx.stroke();
+
+    // Seal circle
+    ctx.beginPath(); ctx.arc(W / 2 + 260, H - 130, 46, 0, Math.PI * 2);
+    ctx.strokeStyle = '#F2142F'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.font = 'bold 11px Poppins, sans-serif'; ctx.fillStyle = '#F2142F';
+    ctx.fillText('ICAT', W / 2 + 260, H - 126);
+    ctx.font = '9px Poppins, sans-serif';
+    ctx.fillText('CERTIFICATION', W / 2 + 260, H - 114);
+
+    if (certNo) {
+      ctx.font = 'bold 13px Poppins, sans-serif'; ctx.fillStyle = '#10b981';
+      ctx.textAlign = 'right';
+      ctx.fillText('✓ APPROVED', W - 70, H - 65);
+    } else {
+      ctx.font = 'bold 13px Poppins, sans-serif'; ctx.fillStyle = '#b8860b';
+      ctx.textAlign = 'right';
+      ctx.fillText('PENDING ADMIN APPROVAL', W - 70, H - 65);
+    }
+  }
+
+  function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = (text || '').split(' ');
+    let line = '';
+    let lines = 0;
+    for (let n = 0; n < words.length && lines < 2; n++) {
+      const testLine = line + words[n] + ' ';
+      if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+        ctx.fillText(line, x, y + lines * lineHeight);
+        line = words[n] + ' ';
+        lines++;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, x, y + lines * lineHeight);
+  }
+
+  /* ---- PDF export (landscape A4) ---- */
+  function downloadCertPdf() {
+    if (!window.jspdf) { showToast('⚠️ PDF library still loading — try again in a moment.', 'error'); return; }
+    const { jsPDF } = window.jspdf;
+    const canvas = document.getElementById('cert-preview-canvas');
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH);
+    const f = certLastPreview ? certLastPreview.fields : {};
+    const fname = `ICAT-Certificate-${(f.name || 'preview').replace(/\s+/g, '_')}.pdf`;
+    pdf.save(fname);
+    showToast('📄 PDF preview downloaded.', 'success');
+  }
+
+  /* ---- Final submission → pushes into the demo admin approval queue ---- */
+  function finalSubmitCert() {
+    if (!certLastPreview) { showToast('⚠️ Please preview your certificate first.', 'error'); return; }
+    const refNo = 'ICAT' + Math.floor(100000 + Math.random() * 899999);
+    const entry = {
+      ref: refNo,
+      fields: certLastPreview.fields,
+      photo: certLastPreview.photo,
+      status: 'Pending',
+      submittedAt: new Date().toLocaleString('en-IN')
+    };
+    certQueue.unshift(entry);
+    renderCertQueueTable();
+    document.getElementById('cert-ref-box').textContent = `REF: ${refNo}`;
+    showCertStep('success');
+
+    // Reset form state for next use
+    ['cg-name','cg-guardian','cg-dob','cg-phone','cg-email','cg-course','cg-duration','cg-start','cg-subjects','cg-occupation','cg-idno','cg-address'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    certPhotoDataUrl = null; certPhotoSizeKB = 0;
+    const drop = document.getElementById('cert-photo-drop');
+    if (drop) { drop.classList.remove('has-img'); drop.innerHTML = '<i class="fas fa-camera" id="cert-photo-icon"></i><span id="cert-photo-label">Click to upload photo</span>'; }
+    const statusEl = document.getElementById('cert-photo-status');
+    if (statusEl) { statusEl.className = 'cert-photo-status'; statusEl.innerHTML = '<i class="fas fa-info-circle"></i> No photo selected yet'; }
+  }
+
+  /* ---- Admin: render pending-approval queue in the admin panel ---- */
+  function renderCertQueueTable() {
+    const tbody = document.getElementById('cert-queue-tbody');
+    const emptyMsg = document.getElementById('cert-queue-empty');
+    const countEl  = document.getElementById('cert-queue-count');
+    if (!tbody) return;
+    if (countEl) countEl.textContent = certQueue.filter(e => e.status === 'Pending').length;
+    if (certQueue.length === 0) {
+      tbody.innerHTML = '';
+      if (emptyMsg) emptyMsg.style.display = '';
+      return;
+    }
+    if (emptyMsg) emptyMsg.style.display = 'none';
+    tbody.innerHTML = certQueue.map((e, i) => {
+      const f = e.fields;
+      const pillClass = e.status === 'Approved' ? 's-active' : (e.status === 'Rejected' ? 's-pending' : 's-review');
+      const actions = e.status === 'Pending'
+        ? `<button class="btn btn-navy btn-sm" style="padding:4px 10px;font-size:.72rem;" onclick="viewCertEntry(${i})">View</button>
+           <button class="btn btn-sm" style="padding:4px 10px;font-size:.72rem;background:#10b981;color:#fff;" onclick="approveCertEntry(${i})">Approve</button>
+           <button class="btn btn-sm" style="padding:4px 10px;font-size:.72rem;background:var(--crimson);color:#fff;" onclick="rejectCertEntry(${i})">Reject</button>`
+        : e.status === 'Approved'
+        ? `<button class="btn btn-navy btn-sm" style="padding:4px 10px;font-size:.72rem;" onclick="viewCertEntry(${i})">View</button>
+           <button class="btn btn-sm" style="padding:4px 10px;font-size:.72rem;background:#b8860b;color:#fff;" onclick="editCertApprovedDate(${i})">Edit Date</button>`
+        : `<button class="btn btn-navy btn-sm" style="padding:4px 10px;font-size:.72rem;" onclick="viewCertEntry(${i})">View</button>`;
+      return `<tr>
+        <td>${e.ref}</td>
+        <td>${f.title} ${f.name}</td>
+        <td>${f.course}</td>
+        <td>${f.centre}</td>
+        <td>${e.submittedAt}</td>
+        <td><span class="status-pill ${pillClass}">${e.status}</span></td>
+        <td style="white-space:nowrap;">${actions}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function viewCertEntry(i) {
+    const e = certQueue[i];
+    if (!e) return;
+    window.__certViewIndex = i;
+    closeAdmPanel();
+    openCertGen();
+    showCertStep('preview');
+    document.getElementById('cert-gen-step-form').style.display = 'none';
+    certLastPreview = { fields: e.fields, photo: e.photo };
+    drawCertPreview(e.fields, e.photo, e.status === 'Approved' ? e.ref : null);
+    // Viewing an already-submitted entry from admin — hide the submit action,
+    // only editing/PDF download remain relevant.
+    const submitBtn = document.querySelector('#cert-gen-step-preview .cert-gen-foot .btn-primary');
+    if (submitBtn) submitBtn.style.display = 'none';
+    const statusLine = document.querySelector('#cert-gen-step-preview .cert-gen-foot .fine');
+    if (statusLine) statusLine.innerHTML = `Application status: <strong style="color:${e.status === 'Approved' ? '#10b981' : (e.status === 'Rejected' ? '#F2142F' : '#b8860b')};">${e.status}</strong> · Ref: ${e.ref}${e.status === 'Approved' ? ' · Issue date: ' + e.approvedDate : ''}`;
+    const editDateBtn = document.getElementById('cert-view-editdate-btn');
+    if (editDateBtn) editDateBtn.style.display = e.status === 'Approved' ? '' : 'none';
+  }
+
+  function approveCertEntry(i) {
+    const e = certQueue[i];
+    if (!e) return;
+    e.status = 'Approved';
+    e.approvedDate = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'2-digit', year:'numeric' });
+    renderCertQueueTable();
+    showToast(`✅ Certificate ${e.ref} approved. Issue date can still be edited before final release.`, 'success');
+  }
+
+  function rejectCertEntry(i) {
+    const e = certQueue[i];
+    if (!e) return;
+    e.status = 'Rejected';
+    renderCertQueueTable();
+    showToast(`❌ Certificate ${e.ref} marked as rejected.`, 'error');
+  }
+
+  function editCertApprovedDate(i) {
+    const e = certQueue[i];
+    if (!e || e.status !== 'Approved') return;
+    const newDate = prompt('Edit issue date (DD/MM/YYYY):', e.approvedDate || '');
+    if (newDate) {
+      e.approvedDate = newDate;
+      renderCertQueueTable();
+      showToast('✅ Issue date updated.', 'success');
+      // If the modal is currently open on this same entry, refresh its status line in place.
+      if (window.__certViewIndex === i) {
+        const statusLine = document.querySelector('#cert-gen-step-preview .cert-gen-foot .fine');
+        if (statusLine) statusLine.innerHTML = `Application status: <strong style="color:#10b981;">Approved</strong> · Ref: ${e.ref} · Issue date: ${e.approvedDate}`;
+      }
+    }
   }
 
   /* ============================
@@ -2124,7 +2856,7 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
       about_edit:'ℹ️ About Section', courses_edit:'📚 Courses Manager',
       notices_edit:'📢 Notices & Events', testi_edit:'⭐ Testimonials',
       gallery_edit:'🖼️ Gallery Manager', contact_edit:'📞 Contact Information',
-      enquiries:'📬 All Enquiries', students:'👥 Student Database',
+      enquiries:'📬 All Enquiries', cert_requests:'📄 Certificate Requests', students:'👥 Student Database',
       placements_edit:'💼 Placement Management', franchise_leads:'🤝 Franchise Leads',
       appearance:'🎨 Appearance & Theme', seo:'🔍 SEO & Meta Tags',
       social_links:'📲 Social Media Links', popup_edit:'💬 Welcome Popup'
@@ -2138,6 +2870,7 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
      INIT
      ============================ */
   navigate('home');
+  renderCertQueueTable();
 </script>
 </body>
 </html>
