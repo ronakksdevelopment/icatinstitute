@@ -712,24 +712,28 @@
        ============================================================ */
     #cert-gen-overlay {
       position:fixed; inset:0; background:rgba(7,21,72,0.85); backdrop-filter:blur(12px);
-      z-index:99985; display:none; align-items:flex-start; justify-content:center;
-      overflow-y:auto; padding:40px 16px;
+      z-index:99985; display:none; align-items:center; justify-content:center;
+      overflow:hidden; padding:24px 16px;
     }
     #cert-gen-overlay.show { display:flex; }
     .cert-gen-modal-box {
       background:#fff; border-radius:24px; width:100%; max-width:920px;
-      position:relative; box-shadow:0 40px 100px rgba(0,0,0,.4);
-      animation:pop-in .4s cubic-bezier(.34,1.56,.64,1) both; overflow:hidden;
+      max-height:100%; position:relative; box-shadow:0 40px 100px rgba(0,0,0,.4);
+      animation:pop-in .4s cubic-bezier(.34,1.56,.64,1) both;
+      display:flex; flex-direction:column; overflow:hidden;
     }
     .cert-gen-head {
       background:linear-gradient(135deg,var(--navy),var(--navy-light));
-      color:#fff; padding:28px 36px; position:relative;
+      color:#fff; padding:28px 36px; position:relative; flex-shrink:0;
     }
     .cert-gen-head h2 { font-family:var(--font-display); font-size:1.5rem; margin-bottom:4px; }
     .cert-gen-head p { font-size:.85rem; color:rgba(255,255,255,.7); }
     .cert-gen-close { position:absolute; top:16px; right:16px; background:rgba(255,255,255,.15); border:none; width:34px; height:34px; border-radius:50%; cursor:pointer; font-size:.95rem; color:#fff; display:flex; align-items:center; justify-content:center; transition:var(--transition); }
     .cert-gen-close:hover { background:var(--crimson); }
-    .cert-gen-body { padding:32px 36px 36px; max-height:70vh; overflow-y:auto; }
+    /* Single scroll container: only cert-gen-body scrolls. The step wrapper is a
+       flex column so the foot stays pinned at the bottom instead of scrolling away. */
+    #cert-gen-step-form, #cert-gen-step-preview, #cert-gen-step-success { flex:1; min-height:0; display:flex; flex-direction:column; }
+    .cert-gen-body { padding:32px 36px 36px; flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
     .cert-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; }
     .cert-form-grid .full { grid-column:1/-1; }
     .cert-form-grid label { font-size:.83rem; font-weight:600; color:var(--navy); margin-bottom:6px; display:block; }
@@ -763,7 +767,7 @@
     .cert-photo-status.warn { color:#b8860b; }
     .cert-photo-status.err { color:var(--crimson); }
 
-    .cert-gen-foot { padding:20px 36px 28px; border-top:1px solid var(--bg-gray); display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
+    .cert-gen-foot { padding:20px 36px 28px; border-top:1px solid var(--bg-gray); display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; flex-shrink:0; background:#fff; }
     .cert-gen-foot .fine { font-size:.75rem; color:var(--text-light); margin-right:auto; align-self:center; max-width:340px; }
 
     /* Success step */
@@ -895,6 +899,10 @@
     }
     /* Ensure nothing causes horizontal scroll on any device */
     html, body { max-width:100%; overflow-x:hidden; }
+    /* Applied whenever any full-screen overlay (mobile nav, lightbox, cert modal, admin panel) is
+       open, so the page behind it can't also scroll — prevents the "double scrollbar" issue where
+       both the overlay's inner content and the underlying page scroll at the same time. */
+    html.no-scroll, html.no-scroll body { overflow:hidden; height:100%; }
     img { max-width:100%; height:auto; }
   </style>
 </head>
@@ -2191,6 +2199,7 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
     mobileNav.classList.toggle('open', open);
     navOverlay.classList.toggle('show', open);
     document.body.style.overflow = open ? 'hidden' : '';
+    document.documentElement.classList.toggle('no-scroll', open);
   });
   navOverlay.addEventListener('click', closeMobileNav);
 
@@ -2198,7 +2207,7 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
     hamburger.classList.remove('open');
     mobileNav.classList.remove('open');
     navOverlay.classList.remove('show');
-    document.body.style.overflow = '';
+    document.documentElement.classList.remove('no-scroll');
   }
 
   /* ============================
@@ -2370,11 +2379,11 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
   function openLightbox(el) {
     document.getElementById('lightbox-img').src = el.querySelector('img').src;
     document.getElementById('lightbox').classList.add('show');
-    document.body.style.overflow = 'hidden';
+    document.documentElement.classList.add('no-scroll');
   }
   function closeLightbox() {
     document.getElementById('lightbox').classList.remove('show');
-    document.body.style.overflow = '';
+    document.documentElement.classList.remove('no-scroll');
   }
   document.getElementById('lightbox').addEventListener('click', function (e) { if (e.target === this) closeLightbox(); });
   document.getElementById('cert-gen-overlay').addEventListener('click', function (e) { if (e.target === this) closeCertGen(); });
@@ -2425,7 +2434,7 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
 
   function openCertGen() {
     document.getElementById('cert-gen-overlay').classList.add('show');
-    document.body.style.overflow = 'hidden';
+    document.documentElement.classList.add('no-scroll');
     document.getElementById('cert-gen-step-form').style.display = '';
     const submitBtn = document.querySelector('#cert-gen-step-preview .cert-gen-foot .btn-primary');
     if (submitBtn) submitBtn.style.display = '';
@@ -2438,7 +2447,7 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
   }
   function closeCertGen() {
     document.getElementById('cert-gen-overlay').classList.remove('show');
-    document.body.style.overflow = '';
+    document.documentElement.classList.remove('no-scroll');
   }
   function showCertStep(step) {
     document.getElementById('cert-gen-step-form').style.display    = step === 'form'    ? '' : 'none';
@@ -2828,7 +2837,7 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
     if (u === '@icatinstitute' && p === 'icat1234') {
       closeAdmin();
       document.getElementById('admin-panel').classList.add('show');
-      document.body.style.overflow = 'hidden';
+      document.documentElement.classList.add('no-scroll');
       showToast('✅ Welcome, Admin! Dashboard loaded.', 'success');
     } else {
       showToast('❌ Invalid credentials. Please check username and password.', 'error');
@@ -2840,7 +2849,7 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
 
   function closeAdmPanel() {
     document.getElementById('admin-panel').classList.remove('show');
-    document.body.style.overflow = '';
+    document.documentElement.classList.remove('no-scroll');
   }
 
   function admLogout() { closeAdmPanel(); showToast('Logged out successfully.', 'success'); }
