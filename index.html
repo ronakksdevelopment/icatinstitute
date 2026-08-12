@@ -780,7 +780,7 @@
     /* Live A4-landscape certificate preview — canvas is a 1400x990 bitmap,
        scaled down responsively so it always fits inside the modal body. */
     #cert-preview-canvas-wrap { display:flex; justify-content:center; margin:0 0 22px; width:100%; }
-    #cert-preview-canvas { width:100%; max-width:820px; height:auto; aspect-ratio:1400/990; background:#fdfaf0; border:1px solid rgba(11,31,106,.12); border-radius:8px; box-shadow:var(--shadow-sm); display:block; }
+    #cert-preview-canvas { width:100%; max-width:820px; height:auto; aspect-ratio:1491/1055; background:#fdfaf0; border:1px solid rgba(11,31,106,.12); border-radius:8px; box-shadow:var(--shadow-sm); display:block; }
 
     @media (max-width:768px){
       .cert-form-grid { grid-template-columns:1fr; }
@@ -1541,27 +1541,26 @@
             </div>
           </div>
 
-          <div class="cert-form-section-title"><i class="fas fa-user"></i> Candidate Details</div>
+          <div class="cert-form-section-title"><i class="fas fa-user"></i> Candidate Details (as printed on certificate)</div>
           <div><label>Title *</label>
             <select id="cg-title"><option>Mr.</option><option>Miss</option><option>Mrs.</option></select>
           </div>
-          <div><label>Full Name (as on ID) *</label><input type="text" id="cg-name" placeholder="e.g. Ankita Debnath" /></div>
+          <div><label>Full Name *</label><input type="text" id="cg-name" placeholder="e.g. ANKITA DEBNATH" style="text-transform:uppercase;" /></div>
           <div><label>Relation *</label>
             <select id="cg-relation"><option>Son of</option><option>Daughter of</option><option>Wife of</option></select>
           </div>
-          <div><label>Father's / Husband's Name *</label><input type="text" id="cg-guardian" placeholder="e.g. Goutam Debnath" /></div>
-          <div><label>Date of Birth</label><input type="date" id="cg-dob" /></div>
+          <div><label>Father's / Husband's Name *</label><input type="text" id="cg-guardian" placeholder="e.g. GOUTAM DEBNATH" style="text-transform:uppercase;" /></div>
           <div><label>Mobile Number *</label><input type="tel" id="cg-phone" placeholder="+91 XXXXX XXXXX" /></div>
           <div class="full"><label>Email Address</label><input type="email" id="cg-email" placeholder="your@email.com" /></div>
 
-          <div class="cert-form-section-title"><i class="fas fa-graduation-cap"></i> Course Details</div>
+          <div class="cert-form-section-title"><i class="fas fa-graduation-cap"></i> Course Details (as printed on certificate)</div>
           <div><label>Course *</label>
             <select id="cg-course" onchange="onCertCourseChange()">
               <option value="">Select course</option>
               <option value="CCC">CCC — Course on Computer Concepts</option>
               <option value="Computer Fundamentals">Computer Fundamentals</option>
               <option value="DCA">DCA — Diploma in Computer Applications</option>
-              <option value="ADCA">ADCA — Advance Diploma in Computer Application</option>
+              <option value="ADCA [Advance Diploma In Computer Application]">ADCA — Advance Diploma in Computer Application</option>
               <option value="Tally Prime with GST">Tally Prime with GST</option>
               <option value="Graphic Design">Graphic Design</option>
               <option value="Web Development">Web Development</option>
@@ -1569,25 +1568,20 @@
               <option value="Data Entry Operator">Data Entry Operator</option>
               <option value="Spoken English">Spoken English</option>
             </select>
+            <span class="hint">Prints exactly as shown, e.g. "ADCA [Advance Diploma In Computer Application]"</span>
           </div>
           <div><label>Training Centre *</label><input type="text" id="cg-centre" placeholder="e.g. Kumarghat, Unakoti Tripura" value="Kumarghat, Unakoti Tripura" /></div>
-          <div><label>Course Duration *</label><input type="text" id="cg-duration" placeholder="e.g. 12 Months" /></div>
           <div><label>Grade Obtained *</label>
             <select id="cg-grade"><option>A+</option><option>A</option><option selected>B+</option><option>B</option><option>C+</option><option>C</option></select>
             <span class="hint">A+: &gt;90% · A: 80–90% · B+: 60–80% · B: 50–60% · C+: 50–40% · C: 30–40%</span>
           </div>
-          <div><label>Course Start Date</label><input type="date" id="cg-start" /></div>
-          <div class="full"><label>Subjects / Modules Covered *</label><textarea id="cg-subjects" placeholder="e.g. Computer Fundamentals, Ms-Windows, Ms-Office, DTP, Corel Draw, Tally, HTML, C, Multimedia Concept & Internet."></textarea></div>
-
-          <div class="cert-form-section-title"><i class="fas fa-id-card"></i> Additional / ICAT-style Form-Fillup Fields</div>
-          <div><label>Guardian's Occupation</label><input type="text" id="cg-occupation" placeholder="Optional" /></div>
-          <div><label>Aadhaar / ID Number (optional)</label><input type="text" id="cg-idno" placeholder="For office record only" /></div>
-          <div class="full"><label>Residential Address</label><textarea id="cg-address" placeholder="Village/Town, P.O., District, State, PIN"></textarea></div>
+          <div><label>Course Duration *</label><input type="text" id="cg-duration" placeholder="e.g. 12 Months" /></div>
+          <div class="full"><label>Core Technologies / Subjects Covered *</label><textarea id="cg-subjects" placeholder="e.g. Computer Fundamentals, Ms-Windows, Ms-Office, DTP, Corel Draw, Tally, HTML, &quot;C&quot;, Multimedia Concept &amp; Internet."></textarea></div>
 
         </div>
       </div>
       <div class="cert-gen-foot">
-        <span class="fine">By submitting, you confirm the details above are accurate. Your certificate will be generated as a preview and issued only after admin approval.</span>
+        <span class="fine">Fields marked * are printed directly on the certificate, matching the official ICAT layout. By submitting, you confirm the details above are accurate. Your certificate will be generated as a preview and issued only after admin approval.</span>
         <button class="btn" style="background:var(--bg-gray);color:var(--text-mid);" onclick="closeCertGen()">Cancel</button>
         <button class="btn btn-primary" onclick="submitCertForm()"><i class="fas fa-paper-plane"></i> Preview &amp; Submit</button>
       </div>
@@ -1597,7 +1591,7 @@
     <div id="cert-gen-step-preview" style="display:none;">
       <div class="cert-gen-body">
         <div id="cert-preview-canvas-wrap">
-          <canvas id="cert-preview-canvas" width="1400" height="990"></canvas>
+          <canvas id="cert-preview-canvas" width="1491" height="1055"></canvas>
         </div>
         <p style="text-align:center;font-size:.85rem;color:var(--text-mid);max-width:520px;margin:0 auto;">This is a preview of your certificate exactly as it will be printed (A4 landscape). Download a PDF copy for your records, or go back to edit any field before submitting for approval.</p>
       </div>
@@ -2545,10 +2539,9 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
     const val = id => (document.getElementById(id) ? document.getElementById(id).value.trim() : '');
     return {
       title: val('cg-title'), name: val('cg-name'), relation: val('cg-relation'),
-      guardian: val('cg-guardian'), dob: val('cg-dob'), phone: val('cg-phone'), email: val('cg-email'),
+      guardian: val('cg-guardian'), phone: val('cg-phone'), email: val('cg-email'),
       course: val('cg-course'), centre: val('cg-centre'), duration: val('cg-duration'),
-      grade: val('cg-grade'), start: val('cg-start'), subjects: val('cg-subjects'),
-      occupation: val('cg-occupation'), idno: val('cg-idno'), address: val('cg-address')
+      grade: val('cg-grade'), subjects: val('cg-subjects')
     };
   }
 
@@ -2565,110 +2558,86 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
     showCertStep('preview');
   }
 
-  /* ---- Canvas rendering of the certificate (landscape, matches ICAT layout) ---- */
+  /* ---- Canvas rendering of the certificate — draws the real ICAT template
+         image as background, text overlaid at positions matched to the
+         official sample (ICAT37242244). Canvas = template's native ratio. ---- */
+  const CERT_TEMPLATE_URL = 'https://i.ibb.co/WWWHPRmH/registered-icit-certificate.png';
+  let certTemplateImg = null, certTemplateReady = false;
+  (function preloadCertTemplate() {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => { certTemplateImg = img; certTemplateReady = true; if (certLastPreview) drawCertPreview(certLastPreview.fields, certLastPreview.photo, certLastPreview.certNo || null); };
+    img.src = CERT_TEMPLATE_URL;
+  })();
+
   function drawCertPreview(f, photoDataUrl, certNo) {
     const canvas = document.getElementById('cert-preview-canvas');
     const ctx = canvas.getContext('2d');
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
 
-    // Background
-    ctx.fillStyle = '#fdfaf0'; ctx.fillRect(0, 0, W, H);
-    // Border
-    ctx.strokeStyle = '#0B1F6A'; ctx.lineWidth = 10; ctx.strokeRect(20, 20, W - 40, H - 40);
-    ctx.strokeStyle = '#F2142F'; ctx.lineWidth = 3;  ctx.strokeRect(36, 36, W - 72, H - 72);
+    if (certTemplateReady) ctx.drawImage(certTemplateImg, 0, 0, W, H);
+    else { ctx.fillStyle = '#fdfaf0'; ctx.fillRect(0, 0, W, H); }
 
-    // Header
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#0B1F6A';
-    ctx.font = 'bold 46px Georgia, serif';
-    ctx.fillText('ICAT Institute', W / 2, 110);
-    ctx.font = '20px Georgia, serif';
-    ctx.fillStyle = '#4a4a6a';
-    ctx.fillText('Institute For Computer Assessment & Training', W / 2, 142);
-    ctx.font = 'bold 13px Poppins, sans-serif';
-    ctx.fillStyle = '#F2142F';
-    ctx.fillText('AN ISO 9001:2015 CERTIFIED INSTITUTE  ·  GOVT. RECOGNIZED', W / 2, 166);
+    // scale factors — coordinates below are tuned for the 1491x1055 template
+    const sx = W / 1491, sy = H / 1055;
+    const S = (n) => n * sx; // horizontal scale
+    const T = (n) => n * sy; // vertical scale
 
-    // Certificate No
     ctx.textAlign = 'left';
-    ctx.font = '16px Poppins, sans-serif';
     ctx.fillStyle = '#1a1a2e';
-    ctx.fillText('Certificate No.', 70, 205);
-    ctx.font = 'bold 16px Poppins, sans-serif';
-    ctx.fillText(certNo || 'ICAT—PENDING—APPROVAL', 210, 205);
 
-    // Photo box (top right)
-    const pw = 130, ph = 165, px = W - 70 - pw, py = 195;
-    ctx.strokeStyle = '#0B1F6A'; ctx.lineWidth = 2; ctx.strokeRect(px, py, pw, ph);
+    // Certificate No.
+    ctx.font = `${T(24)}px Poppins, sans-serif`;
+    ctx.fillText(certNo || (f.certNoPreview || 'ICAT—PENDING'), S(345), T(233));
+
+    // Passport photo box
+    const pw = S(148), ph = T(170), px = S(1010), py = T(185);
     if (photoDataUrl) {
       const img = new Image();
-      img.onload = () => { ctx.drawImage(img, px, py, pw, ph); };
+      img.onload = () => ctx.drawImage(img, px, py, pw, ph);
       img.src = photoDataUrl;
     }
 
-    // Script "This credential is awarded to"
-    ctx.textAlign = 'center';
-    ctx.font = 'italic 22px Georgia, serif';
-    ctx.fillStyle = '#4a4a6a';
-    ctx.fillText('This credential is awarded to', W / 2 - 70, 260);
+    // Name (Mr./Miss. ____)
+    ctx.font = `bold ${T(28)}px Georgia, serif`;
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillText(`${f.title} ${f.name}`.trim(), S(415), T(340));
 
-    // Name
-    ctx.font = 'bold 34px Georgia, serif';
-    ctx.fillStyle = '#0B1F6A';
-    const displayName = `${f.title} ${f.name}`.trim();
-    ctx.fillText(displayName, W / 2 - 70, 310);
-    ctx.strokeStyle = '#0B1F6A'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(W / 2 - 70 - 260, 322); ctx.lineTo(W / 2 - 70 + 260, 322); ctx.stroke();
+    // Guardian (Son/Daughter/Wife of ____)
+    ctx.font = `${T(26)}px Georgia, serif`;
+    ctx.fillText(f.guardian, S(495), T(415));
 
-    // Guardian
-    ctx.font = '18px Georgia, serif'; ctx.fillStyle = '#4a4a6a';
-    ctx.fillText(`${f.relation} ${f.guardian}`, W / 2 - 70, 355);
+    // Course name
+    ctx.font = `${T(25)}px Georgia, serif`;
+    ctx.fillText(f.course, S(300), T(505));
 
-    // Course line
-    ctx.font = 'italic 18px Georgia, serif';
-    ctx.fillText('for successfully completing the course', W / 2 - 70, 392);
-    ctx.font = 'bold 24px Georgia, serif'; ctx.fillStyle = '#F2142F';
-    ctx.fillText(f.course, W / 2 - 70, 425);
+    // Centre
+    ctx.font = `${T(24)}px Georgia, serif`;
+    ctx.fillText(f.centre, S(430), T(575));
 
-    // Centre / grade / duration row
-    ctx.font = '17px Georgia, serif'; ctx.fillStyle = '#1a1a2e';
-    ctx.fillText(`from our ${f.centre} centre`, W / 2 - 70, 460);
-    ctx.fillText(`with ${f.grade} grade  ·  duration ${f.duration}`, W / 2 - 70, 490);
+    // Grade
+    ctx.fillText(f.grade, S(555), T(618));
 
-    // Subjects
-    ctx.font = '14px Poppins, sans-serif'; ctx.fillStyle = '#4a4a6a';
-    wrapText(ctx, f.subjects, W / 2 - 70, 525, 620, 20);
+    // Duration
+    ctx.fillText(f.duration, S(780), T(660));
 
-    // Footer: date + seal + signature
+    // Subjects / core technologies (two lines)
+    ctx.font = `${T(23)}px Poppins, sans-serif`;
+    wrapText(ctx, f.subjects, S(300), T(725), S(950), T(42));
+
+    // Date of issue
+    ctx.font = `${T(21)}px Poppins, sans-serif`;
+    ctx.fillStyle = '#a00';
+    const issueDate = certNo ? (f.approvedDate || new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'2-digit', year:'numeric' })) : '(assigned on approval)';
+    ctx.fillText(issueDate, S(180), T(1010));
+
+    // Status watermark (subtle, top-right corner) — helps distinguish preview vs approved
+    ctx.font = `bold ${T(18)}px Poppins, sans-serif`;
+    ctx.textAlign = 'right';
+    if (certNo) { ctx.fillStyle = '#10b981'; ctx.fillText('✓ APPROVED', S(1420), T(50)); }
+    else { ctx.fillStyle = '#b8860b'; ctx.fillText('PREVIEW — PENDING APPROVAL', S(1420), T(50)); }
     ctx.textAlign = 'left';
-    ctx.font = '14px Poppins, sans-serif'; ctx.fillStyle = '#1a1a2e';
-    const issueDate = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'2-digit', year:'numeric' });
-    ctx.fillText(`Date of Issue: ${certNo ? issueDate : '(assigned on approval)'}`, 70, H - 90);
-    ctx.fillText('Grade Scale: A+ >90% · A 80–90% · B+ 60–80% · B 50–60% · C+ 40–50% · C 30–40%', 70, H - 65);
-
-    ctx.textAlign = 'center';
-    ctx.font = 'bold 14px Georgia, serif';
-    ctx.fillText('Signature of Director', W - 220, H - 70);
-    ctx.beginPath(); ctx.moveTo(W - 320, H - 90); ctx.lineTo(W - 120, H - 90); ctx.stroke();
-
-    // Seal circle
-    ctx.beginPath(); ctx.arc(W / 2 + 260, H - 130, 46, 0, Math.PI * 2);
-    ctx.strokeStyle = '#F2142F'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.font = 'bold 11px Poppins, sans-serif'; ctx.fillStyle = '#F2142F';
-    ctx.fillText('ICAT', W / 2 + 260, H - 126);
-    ctx.font = '9px Poppins, sans-serif';
-    ctx.fillText('CERTIFICATION', W / 2 + 260, H - 114);
-
-    if (certNo) {
-      ctx.font = 'bold 13px Poppins, sans-serif'; ctx.fillStyle = '#10b981';
-      ctx.textAlign = 'right';
-      ctx.fillText('✓ APPROVED', W - 70, H - 65);
-    } else {
-      ctx.font = 'bold 13px Poppins, sans-serif'; ctx.fillStyle = '#b8860b';
-      ctx.textAlign = 'right';
-      ctx.fillText('PENDING ADMIN APPROVAL', W - 70, H - 65);
-    }
   }
 
   function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -2691,9 +2660,10 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
   /* ---- PDF export (landscape A4) ---- */
   function downloadCertPdf() {
     if (!window.jspdf) { showToast('⚠️ PDF library still loading — try again in a moment.', 'error'); return; }
+    if (certLastPreview) drawCertPreview(certLastPreview.fields, certLastPreview.photo, certLastPreview.certNo || null);
     const { jsPDF } = window.jspdf;
     const canvas = document.getElementById('cert-preview-canvas');
-    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
     const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const pageW = pdf.internal.pageSize.getWidth();
     const pageH = pdf.internal.pageSize.getHeight();
@@ -2701,7 +2671,7 @@ Sunday: 10:00 AM – 2:00 PM</textarea></div>
     const f = certLastPreview ? certLastPreview.fields : {};
     const fname = `ICAT-Certificate-${(f.name || 'preview').replace(/\s+/g, '_')}.pdf`;
     pdf.save(fname);
-    showToast('📄 PDF preview downloaded.', 'success');
+    showToast('📄 A4 PDF downloaded.', 'success');
   }
 
   /* ---- Final submission → pushes into the demo admin approval queue ---- */
